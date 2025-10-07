@@ -2,152 +2,139 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Weighted Grade Calculator</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Grade Calculator</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main class="container">
-    <h1>Grade Calculator</h1>
-    <p class="subtitle">Weights: Graded Formatives 10% • Minor Summatives 30% • Major Summatives 60%</p>
+    <header class="header">
+      <h1>Grade Calculator</h1>
+      <p class="subtitle">Graded Formatives 10% • Minor Summatives 30% • Major Summatives 60%</p>
+    </header>
 
-    <section id="summary" class="summary">
-      <div class="summary-item">
-        <div class="label">Overall Grade</div>
-        <div id="overallGrade" class="value">—</div>
+    <section class="controls">
+      <div class="left">
+        <button id="addRowBtn" class="btn primary">+ Add Assignment</button>
+        <button id="clearAllBtn" class="btn danger outline">Clear All</button>
       </div>
-      <div class="summary-item">
-        <div class="label">Active Weight (normalized)</div>
-        <div id="activeWeight" class="value">—</div>
-      </div>
-    </section>
-
-    <section class="grid">
-      <div class="panel" data-category="formatives">
-        <header>
-          <h2>Graded Formatives</h2>
-          <span class="weight">10%</span>
-        </header>
-
-        <form class="add-form" data-category="formatives">
-          <input type="text" name="name" placeholder="Assignment name (optional)"/>
-          <input type="number" name="earned" placeholder="Earned" min="0" step="0.01" required />
-          <span>/</span>
-          <input type="number" name="possible" placeholder="Possible" min="0.01" step="0.01" required />
-          <button type="submit">Add</button>
-        </form>
-
-        <div class="stats">
-          <span>Category Grade: <strong id="grade-formatives">—</strong></span>
-          <span>Total: <strong id="total-formatives">0 / 0</strong></span>
-        </div>
-
-        <table class="list">
-          <thead>
-            <tr>
-              <th>Assignment</th>
-              <th>Earned</th>
-              <th>Possible</th>
-              <th>%</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tbody-formatives"></tbody>
-        </table>
-
-        <div class="actions">
-          <button class="clear-btn" data-category="formatives">Clear Formatives</button>
-        </div>
-      </div>
-
-      <div class="panel" data-category="minor">
-        <header>
-          <h2>Minor Summatives</h2>
-          <span class="weight">30%</span>
-        </header>
-
-        <form class="add-form" data-category="minor">
-          <input type="text" name="name" placeholder="Assignment name (optional)"/>
-          <input type="number" name="earned" placeholder="Earned" min="0" step="0.01" required />
-          <span>/</span>
-          <input type="number" name="possible" placeholder="Possible" min="0.01" step="0.01" required />
-          <button type="submit">Add</button>
-        </form>
-
-        <div class="stats">
-          <span>Category Grade: <strong id="grade-minor">—</strong></span>
-          <span>Total: <strong id="total-minor">0 / 0</strong></span>
-        </div>
-
-        <table class="list">
-          <thead>
-            <tr>
-              <th>Assignment</th>
-              <th>Earned</th>
-              <th>Possible</th>
-              <th>%</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tbody-minor"></tbody>
-        </table>
-
-        <div class="actions">
-          <button class="clear-btn" data-category="minor">Clear Minor Summatives</button>
-        </div>
-      </div>
-
-      <div class="panel" data-category="major">
-        <header>
-          <h2>Major Summatives</h2>
-          <span class="weight">60%</span>
-        </header>
-
-        <form class="add-form" data-category="major">
-          <input type="text" name="name" placeholder="Assignment name (optional)"/>
-          <input type="number" name="earned" placeholder="Earned" min="0" step="0.01" required />
-          <span>/</span>
-          <input type="number" name="possible" placeholder="Possible" min="0.01" step="0.01" required />
-          <button type="submit">Add</button>
-        </form>
-
-        <div class="stats">
-          <span>Category Grade: <strong id="grade-major">—</strong></span>
-          <span>Total: <strong id="total-major">0 / 0</strong></span>
-        </div>
-
-        <table class="list">
-          <thead>
-            <tr>
-              <th>Assignment</th>
-              <th>Earned</th>
-              <th>Possible</th>
-              <th>%</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="tbody-major"></tbody>
-        </table>
-
-        <div class="actions">
-          <button class="clear-btn" data-category="major">Clear Major Summatives</button>
-        </div>
+      <div class="right">
+        <label class="checkbox">
+          <input type="checkbox" id="renormalizeToggle" checked />
+          <span>Re-normalize weights when a category has no assignments</span>
+        </label>
       </div>
     </section>
 
-    <section class="footer-actions">
-      <button id="clearAll">Clear All</button>
-      <label class="toggle">
-        <input type="checkbox" id="persistToggle" checked />
-        <span>Save data to this browser</span>
-      </label>
+    <section class="table-wrap card">
+      <table class="assignments" aria-describedby="calcHelp">
+        <thead>
+          <tr>
+            <th style="width: 34%">Assignment</th>
+            <th style="width: 20%">Type</th>
+            <th style="width: 14%">Points Earned</th>
+            <th style="width: 14%">Points Possible</th>
+            <th style="width: 12%">Percent</th>
+            <th style="width: 6%"></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="6" id="calcHelp" class="muted small">
+              Tip: Enter points for each assignment. Change its type to Formative, Minor Summative, or Major Summative.
+              The final grade uses category averages with weights (10/30/60). If a category is empty, it will be ignored
+              and weights re-normalized unless you uncheck the option above.
+            </td>
+          </tr>
+        </tfoot>
+      </table>
     </section>
 
-    <footer class="footnote">
-      If a category has no assignments, its weight is ignored and the remaining categories’ weights are re-normalized.
-    </footer>
+    <section class="summary-grid">
+      <div class="card">
+        <h3 class="card-title">Category Breakdown</h3>
+        <div class="grid two">
+          <div class="metric">
+            <div class="label">Graded Formatives</div>
+            <div class="value">
+              <span id="formativePct">--</span>
+              <span class="sub">Weighted: <span id="formativeW">10%</span></span>
+            </div>
+            <div class="bar">
+              <div id="formativeBar" class="bar-fill"></div>
+            </div>
+          </div>
+
+          <div class="metric">
+            <div class="label">Minor Summatives</div>
+            <div class="value">
+              <span id="minorPct">--</span>
+              <span class="sub">Weighted: <span id="minorW">30%</span></span>
+            </div>
+            <div class="bar">
+              <div id="minorBar" class="bar-fill"></div>
+            </div>
+          </div>
+
+          <div class="metric">
+            <div class="label">Major Summatives</div>
+            <div class="value">
+              <span id="majorPct">--</span>
+              <span class="sub">Weighted: <span id="majorW">60%</span></span>
+            </div>
+            <div class="bar">
+              <div id="majorBar" class="bar-fill"></div>
+            </div>
+          </div>
+        </div>
+        <p id="weightNote" class="muted small" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="card highlight">
+        <h3 class="card-title">Final Grade</h3>
+        <div class="final-grade">
+          <div class="final-value" id="finalPct">--</div>
+          <div class="final-sub">
+            <span id="finalLetter">–</span>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <script src="app.js"></script>
+  <template id="rowTemplate">
+    <tr>
+      <td>
+        <input type="text" class="input" placeholder="Assignment name" data-field="name" />
+      </td>
+      <td>
+        <select class="select" data-field="type" aria-label="Assignment type">
+          <option value="formative">Graded Formative</option>
+          <option value="minor">Minor Summative</option>
+          <option value="major">Major Summative</option>
+        </select>
+      </td>
+      <td>
+        <input type="number" min="0" step="any" class="input number" placeholder="0" data-field="earned" />
+      </td>
+      <td>
+        <input type="number" min="0" step="any" class="input number" placeholder="0" data-field="possible" />
+      </td>
+      <td class="cell-right">
+        <span class="chip" data-field="percent">--</span>
+      </td>
+      <td class="cell-center">
+        <button class="icon-btn danger" title="Remove assignment" aria-label="Remove assignment" data-action="remove">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 3h6m5 4H4m2 0l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10 11v6m4-6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </td>
+    </tr>
+  </template>
+
+  <script src="script.js"></script>
 </body>
 </html>
