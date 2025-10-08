@@ -10,7 +10,9 @@
   <main class="container">
     <header class="header">
       <h1>Grade Calculator</h1>
-      <p class="subtitle">Graded Formatives 10% • Minor Summatives 30% • Major Summatives 60%</p>
+      <p class="subtitle" id="subtitle">
+        Graded Formatives 10% • Minor Summatives 30% • Major Summatives 60% ------ Graded Formatives 10% • Minor Summatives 40% • Major Summatives 50%
+      </p>
     </header>
 
     <section class="controls">
@@ -22,6 +24,13 @@
         <label class="checkbox">
           <input type="checkbox" id="renormalizeToggle" checked />
           <span>Re-normalize weights when a category has no assignments</span>
+        </label>
+        <label class="select-label" style="margin-left:14px;">
+          <span style="color:var(--muted);margin-right:6px;">Weighting:</span>
+          <select id="weightingSelect" class="select" style="width:220px;">
+            <option value="default">Formative 10%, Minor 30%, Major 60%</option>
+            <option value="alt">Formative 10%, Minor 40%, Major 50%</option>
+          </select>
         </label>
       </div>
     </section>
@@ -43,7 +52,7 @@
           <tr>
             <td colspan="6" id="calcHelp" class="muted small">
               Tip: Enter points for each assignment. Change its type to Formative, Minor Summative, or Major Summative.
-              The final grade uses category averages with weights (10/30/60). If a category is empty, it will be ignored
+              The final grade uses category averages with weights. If a category is empty, it will be ignored
               and weights re-normalized unless you uncheck the option above.
             </td>
           </tr>
