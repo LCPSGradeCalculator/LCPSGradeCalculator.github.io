@@ -1,9 +1,10 @@
 (() => {
-  const DEFAULT_WEIGHTS = Object.freeze({
-    formative: 0.10,
-    minor: 0.30,
-    major: 0.60,
-  });
+  // Weight sets
+  const WEIGHTS = {
+    default: { formative: 0.10, minor: 0.30, major: 0.60 },
+    alt:     { formative: 0.10, minor: 0.40, major: 0.50 }
+  };
+  let selectedWeights = WEIGHTS.default;
 
   const TYPE_LABELS = Object.freeze({
     formative: 'Graded Formative',
@@ -19,7 +20,8 @@
     addRowBtn: document.getElementById('addRowBtn'),
     clearAllBtn: document.getElementById('clearAllBtn'),
     renormalizeToggle: document.getElementById('renormalizeToggle'),
-
+    weightingSelect: document.getElementById('weightingSelect'),
+    subtitle: document.getElementById('subtitle'),
     // Category percent + weight text and bars
     formativePct: document.getElementById('formativePct'),
     minorPct: document.getElementById('minorPct'),
@@ -136,7 +138,8 @@
   }
 
   function normalizeWeights(include, renormalize) {
-    const included = Object.entries(DEFAULT_WEIGHTS)
+    const weightsObj = selectedWeights;
+    const included = Object.entries(weightsObj)
       .filter(([k]) => include[k]);
 
     const totalIncluded = included.reduce((s, [, w]) => s + w, 0);
@@ -144,8 +147,8 @@
     const result = { formative: 0, minor: 0, major: 0 };
 
     if (!renormalize) {
-      // Use defaults, but categories with no data contribute 0
-      for (const [k, w] of Object.entries(DEFAULT_WEIGHTS)) {
+      // Use selected weights, but categories with no data contribute 0
+      for (const [k, w] of Object.entries(weightsObj)) {
         result[k] = include[k] ? w : 0;
       }
       return result;
@@ -153,7 +156,7 @@
 
     // Renormalize so present categories sum to 1
     if (totalIncluded <= 0) return result;
-    for (const [k, w] of Object.entries(DEFAULT_WEIGHTS)) {
+    for (const [k, w] of Object.entries(weightsObj)) {
       result[k] = include[k] ? (w / totalIncluded) : 0;
     }
     return result;
@@ -284,11 +287,17 @@
       if (renormalize) {
         els.weightNote.textContent = `Note: No assignments in ${missing.join(', ')}. Weights re-normalized across present categories.`;
       } else {
-        els.weightNote.textContent = `Note: No assignments in ${missing.join(', ')}. Missing categories contribute 0 under fixed 10/30/60 weights.`;
+        els.weightNote.textContent = `Note: No assignments in ${missing.join(', ')}. Missing categories contribute 0 under chosen weights.`;
       }
     } else {
       els.weightNote.textContent = '';
     }
+  }
+
+  function updateSubtitle() {
+    let w = selectedWeights;
+    els.subtitle.textContent =
+      `Graded Formatives ${(w.formative*100).toFixed(0)}% • Minor Summatives ${(w.minor*100).toFixed(0)}% • Major Summatives ${(w.major*100).toFixed(0)}%`;
   }
 
   // Event wiring
@@ -302,6 +311,11 @@
     render();
   });
   els.renormalizeToggle.addEventListener('change', updateSummary);
+  els.weightingSelect.addEventListener('change', () => {
+    selectedWeights = WEIGHTS[els.weightingSelect.value];
+    updateSubtitle();
+    updateSummary();
+  });
 
   // Initial state
   if (assignments.length === 0) {
@@ -309,4 +323,6 @@
   } else {
     render();
   }
+
+  updateSubtitle();
 })();
